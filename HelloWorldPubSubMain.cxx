@@ -23,52 +23,57 @@
 #include "HelloWorldDriver.h"
 #include "HelloWorldServer.h"
 
-int main(
-        int argc,
-        char** argv)
-{
-    int type = 0;
 
-    if (argc == 2)
-    {
-        if (strcmp(argv[1], "driver") == 0)
-        {
+int main(int argc, char** argv) {
+    int type = 0;
+	unsigned message_size = 0;
+	unsigned message_rate = 1; // Default 1 Hz
+	for (int i = 0; i < argc; ++i) {
+		if(!strncmp(argv[i], "-rate",5)){
+			if(i < argc-1){
+				message_rate = atoi(argv[i+1]);
+			}else{
+				printf("ERROR: RATE NOT PROVIDED\n");
+				return -1;
+			}
+		}else if(!strncmp(argv[i], "-size",5)){
+			if(i < argc-1){
+				message_size = atoi(argv[i+1]);
+			}else{
+				printf("ERROR: SIZE NOT PROVIDED\n");
+				return -1;
+			}
+        }else if (strcmp(argv[i], "-driver") == 0){
             type = 1;
-        }
-        else if (strcmp(argv[1], "server") == 0)
-        {
+        }else if (strcmp(argv[i], "-server") == 0){
             type = 2;
         }
     }
 
-    if (type == 0)
-    {
+    if ((type == 0) || (message_size == 0)){
         std::cout << "Error: Incorrect arguments." << std::endl;
         std::cout << "Usage: " << std::endl << std::endl;
-        std::cout << argv[0] << " driver|server" << std::endl << std::endl;
+        std::cout << argv[0] << "-rate R -size S -driver|-server" << std::endl << std::endl;
         return 0;
     }
 
     std::cout << "Starting " << std::endl;
 
-    // Register the type being used
-
+	// TODO Actually use size and rate params
     switch (type)
     {
         case 1:
         {
             HelloWorldDriver mypub;
-            if (mypub.init())
-            {
-                mypub.run();
+            if (mypub.init(message_size, message_rate)) {
+                mypub.run(message_size, message_rate);
             }
             break;
         }
         case 2:
         {
             HelloWorldServer mysub;
-            if (mysub.init())
-            {
+            if (mysub.init()) {
                 mysub.run();
             }
             break;

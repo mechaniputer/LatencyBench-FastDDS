@@ -65,10 +65,8 @@ HelloWorldDriver::~HelloWorldDriver()
     DomainParticipantFactory::get_instance()->delete_participant(participant_);
 }
 
-bool HelloWorldDriver::init()
-{
+bool HelloWorldDriver::init(unsigned size, unsigned rate){
     /* Initialize data_ here */
-    int rate = 2; // Hertz
     auto period = std::chrono::duration<double>(1.0 / rate);
     auto period_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(period);
     m_time_between_publish = period_ns;
@@ -76,7 +74,6 @@ bool HelloWorldDriver::init()
 
 	// QOS and initial peers
     DomainParticipantQos pqos;
-	// FIXME If using on one machine, comment this out.
 	// Initial peer (client is 10.0.0.2 so our peer is 10.0.0.1, participant 0 on both sides)
 	eprosima::fastrtps::rtps::Locator_t initial_peer;
 	IPLocator::setIPv4(initial_peer, "10.0.0.1");
@@ -168,17 +165,16 @@ void HelloWorldDriver::PubListener::on_publication_matched(
     }
 }
 
-void HelloWorldDriver::run()
-{
+void HelloWorldDriver::run(unsigned size, unsigned rate) {
     std::cout << "HelloWorld DataWriter waiting for DataReaders." << std::endl;
     while (listener_.matched == 0)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(250)); // Sleep 250 ms
     }
 
-    // Publication code
     std::string s0 ("");
-    for(int i=0; i<(128); i++){
+	// size>>3 divides by 8 because the test string is already 8 bytes
+    for(int i=0; i<(size>>3); i++){
         s0.append("DEADBEEF");
     }
     HelloWorld st;
@@ -192,21 +188,18 @@ void HelloWorldDriver::run()
     // For send interval timing
     m_first_run = std::chrono::steady_clock::now();
     auto loopcount = 0;
-    do
-    {
-        
+	// TODO Launch second thread for receive loop and latency measurement
+    do{
         // For latency measurement
         auto start = std::chrono::steady_clock::now().time_since_epoch().count();
         writer_->write(&st);
         ++msgsent;
-        //std::cout << "Sending sample, count=" << msgsent << std::endl;
-            // TODO wait for response
+        std::cout << "Sending sample, count=" << msgsent << std::endl;
         if(response_reader_->wait_for_unread_message(10)) {
             SampleInfo info;
             if (response_reader_->take_next_sample(&st, &info) == ReturnCode_t::RETCODE_OK) {
                 if (info.valid_data) {
                     auto stop = std::chrono::steady_clock::now().time_since_epoch().count();
-                    // Print your structure data here.
                     std::cout << "Received response after " << stop-start << " ns\n";
                 }
             }
