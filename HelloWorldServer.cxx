@@ -137,7 +137,10 @@ bool HelloWorldServer::init()
         return false;
     }
     // CREATE THE RESPONSE WRITER
-    response_writer_ = response_publisher_->create_datawriter(response_topic_, DATAWRITER_QOS_DEFAULT, &response_listener_);
+	DataWriterQos response_qos;
+	response_qos.reliable_writer_qos().times.heartbeatPeriod.seconds = 0;
+	response_qos.reliable_writer_qos().times.heartbeatPeriod.nanosec = 500;
+    response_writer_ = response_publisher_->create_datawriter(response_topic_, response_qos, &response_listener_);
     if (response_writer_ == nullptr)
     {
         return false;
@@ -196,7 +199,7 @@ void HelloWorldServer::run()
             if (reader_->take_next_sample(&st, &info) == ReturnCode_t::RETCODE_OK) {
                 if (info.valid_data) {
                     // Print your structure data here.
-                    ++(listener_.samples);
+                    //++(listener_.samples);
                     //std::cout << "Sample received, count=" << listener_.samples << std::endl;
                     response_writer_->write(&st);
                     

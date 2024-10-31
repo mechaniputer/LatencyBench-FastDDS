@@ -142,8 +142,8 @@ HelloWorld: CMakeFiles/HelloWorld.dir/HelloWorldPubSubMain.cxx.o
 HelloWorld: CMakeFiles/HelloWorld.dir/build.make
 HelloWorld: libHelloWorld_lib.a
 HelloWorld: /home/alan/Fast-DDS/install/fastrtps/lib/libfastrtps.so.2.14.3
-HelloWorld: /home/alan/Fast-DDS/install/fastcdr/lib/libfastcdr.so.2.2.3
-HelloWorld: /opt/Fast-DDS/lib/libfoonathan_memory-0.7.1.a
+HelloWorld: /home/alan/Fast-DDS/install/fastcdr/lib/libfastcdr.so.2.2.4
+HelloWorld: /home/alan/Fast-DDS/install/foonathan_memory_vendor/lib/libfoonathan_memory-0.7.3.a
 HelloWorld: /usr/lib/x86_64-linux-gnu/libtinyxml2.so
 HelloWorld: /usr/lib/x86_64-linux-gnu/libtinyxml2.so
 HelloWorld: /usr/lib/x86_64-linux-gnu/libssl.so

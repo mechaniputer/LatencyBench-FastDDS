@@ -109,7 +109,10 @@ bool HelloWorldDriver::init(unsigned size, unsigned rate){
     }
 
     // CREATE THE WRITER
-    writer_ = publisher_->create_datawriter(topic_, DATAWRITER_QOS_DEFAULT, &listener_);
+	DataWriterQos driver_qos;
+	driver_qos.reliable_writer_qos().times.heartbeatPeriod.seconds = 0;
+	driver_qos.reliable_writer_qos().times.heartbeatPeriod.nanosec = 500;
+    writer_ = publisher_->create_datawriter(topic_, driver_qos, &listener_);
     if (writer_ == nullptr)
     {
         return false;
@@ -194,7 +197,7 @@ void HelloWorldDriver::run(unsigned size, unsigned rate) {
         auto start = std::chrono::steady_clock::now().time_since_epoch().count();
         writer_->write(&st);
         ++msgsent;
-        std::cout << "Sending sample, count=" << msgsent << std::endl;
+        std::cout << "Sent sample, count=" << msgsent << std::endl;
         if(response_reader_->wait_for_unread_message(10)) {
             SampleInfo info;
             if (response_reader_->take_next_sample(&st, &info) == ReturnCode_t::RETCODE_OK) {
@@ -207,9 +210,8 @@ void HelloWorldDriver::run(unsigned size, unsigned rate) {
             std::cout << "Wait timed out\n";
             break;
         }
-        //std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        std::chrono::steady_clock::time_point next_run = m_first_run + m_time_between_publish * loopcount++;
-        std::this_thread::sleep_until(next_run);
+		// Uncomment for data rate limiting. Comment for max throughput test.
+        //std::chrono::steady_clock::time_point next_run = m_first_run + m_time_between_publish * loopcount++;
+        //std::this_thread::sleep_until(next_run);
     } while (true);
-   //} while (std::cin >> ch);
 }

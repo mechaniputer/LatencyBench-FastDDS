@@ -59,7 +59,7 @@ int main(int argc, char** argv) {
 
     std::cout << "Starting " << std::endl;
 
-	// TODO Actually use size and rate params
+	// Actually use size and rate params
     switch (type)
     {
         case 1:

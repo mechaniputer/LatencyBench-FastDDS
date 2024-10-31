@@ -237,7 +237,7 @@ fastcdr_DIR:PATH=/home/alan/Fast-DDS/install/fastcdr/lib/cmake/fastcdr
 fastrtps_DIR:PATH=/home/alan/Fast-DDS/install/fastrtps/share/fastrtps/cmake
 
 //The directory containing a CMake configuration file for foonathan_memory.
-foonathan_memory_DIR:PATH=/opt/Fast-DDS/lib/foonathan_memory/cmake
+foonathan_memory_DIR:PATH=/home/alan/Fast-DDS/install/foonathan_memory_vendor/lib/foonathan_memory/cmake
 
 //Value Computed by CMake
 generated_code_BINARY_DIR:STATIC=/home/alan/Desktop/LatencyBench-FastDDS/build
