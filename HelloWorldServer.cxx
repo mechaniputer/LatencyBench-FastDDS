@@ -154,7 +154,6 @@ void HelloWorldServer::run()
     HelloWorld st;
     SampleInfo info;
     std::cout << "Waiting for Data. " << std::endl;
-    int counter = 0;
     while(true){
 //		std::cout << "Waiting\n";
         if(reader_->wait_for_unread_message(10)) {
@@ -166,32 +165,8 @@ void HelloWorldServer::run()
                     //++(listener_.samples);
                     //std::cout << "Sample received, count=" << listener_.samples << std::endl;
                     response_writer_->write(&st);
-                    
                     //std::cout << "Response sent back\n";
-                    counter++;
                 }
-            }
-
-            if(counter==10000){
-            std::cout << "samples: " << counter << "  len: " << st.message().length() << std::endl;
-            auto wall_time = std::chrono::high_resolution_clock::now().time_since_epoch().count();
-            tms tm;
-            ::times(&tm);
-            auto system_time = (tm.tms_stime + tm.tms_cstime) * m_ticks_to_ns;
-            auto user_time = (tm.tms_utime + tm.tms_cutime) * m_ticks_to_ns;
-
-            auto wall_diff = wall_time - m_wall_time;
-            auto system_diff = system_time - m_system_time;
-            auto user_diff = user_time - m_user_time;
-
-            m_wall_time = wall_time;
-            m_system_time = system_time;
-            m_user_time = user_time;
-            std::cout << "user_time="<< user_time << "\nm_user_time" << m_user_time << "\n";
-            std::cout << "user_diff="<< user_diff << "\nsystem_diff=" << system_diff << "\n";
-            std::cout << "CPU: " << 100.0F * static_cast<float>(user_diff + system_diff) /
-                static_cast<float>(wall_diff * m_cpu_cores) << "%\n";
-            counter = 0;
             }
         }else{
             std::cout << "Wait timed out\n";
