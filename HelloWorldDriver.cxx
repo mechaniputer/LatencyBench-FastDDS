@@ -75,10 +75,10 @@ bool HelloWorldDriver::init(unsigned size, unsigned rate){
 	// QOS and initial peers
     DomainParticipantQos pqos;
 	// Initial peer (client is 10.0.0.2 so our peer is 10.0.0.1, participant 0 on both sides)
-	eprosima::fastrtps::rtps::Locator_t initial_peer;
-	IPLocator::setIPv4(initial_peer, "10.0.0.1");
-	initial_peer.port = 7410; // 7400 + (250 * domainID) + 10 + (2 * participantID)
-	pqos.wire_protocol().builtin.initialPeersList.push_back(initial_peer);
+//	eprosima::fastrtps::rtps::Locator_t initial_peer;
+//	IPLocator::setIPv4(initial_peer, "10.0.0.1");
+//	initial_peer.port = 7410; // 7400 + (250 * domainID) + 10 + (2 * participantID)
+//	pqos.wire_protocol().builtin.initialPeersList.push_back(initial_peer);
 	
     //CREATE THE PARTICIPANT
     pqos.name("Participant_pub");
@@ -111,7 +111,7 @@ bool HelloWorldDriver::init(unsigned size, unsigned rate){
     // CREATE THE WRITER
 	DataWriterQos driver_qos;
 	driver_qos.reliable_writer_qos().times.heartbeatPeriod.seconds = 0;
-	driver_qos.reliable_writer_qos().times.heartbeatPeriod.nanosec = 500;
+	driver_qos.reliable_writer_qos().times.heartbeatPeriod.nanosec = 50000;
     writer_ = publisher_->create_datawriter(topic_, driver_qos, &listener_);
     if (writer_ == nullptr)
     {
@@ -169,6 +169,7 @@ void HelloWorldDriver::PubListener::on_publication_matched(
 }
 
 void HelloWorldDriver::run(unsigned size, unsigned rate) {
+	unsigned long long num_samples = 500000;
     std::cout << "HelloWorld DataWriter waiting for DataReaders." << std::endl;
     while (listener_.matched == 0)
     {
@@ -187,23 +188,26 @@ void HelloWorldDriver::run(unsigned size, unsigned rate) {
     /* Initialize your structure here */
 
     int msgsent = 0;
+	unsigned long long rx_count = 0;
 
     // For send interval timing
     m_first_run = std::chrono::steady_clock::now();
     auto loopcount = 0;
 	// TODO Launch second thread for receive loop and latency measurement
-    do{
+	auto time_begin = std::chrono::high_resolution_clock::now();
+    while(rx_count < num_samples){
         // For latency measurement
         auto start = std::chrono::steady_clock::now().time_since_epoch().count();
         writer_->write(&st);
         ++msgsent;
-        std::cout << "Sent sample, count=" << msgsent << std::endl;
+//        std::cout << "Sent sample, count=" << msgsent << std::endl;
         if(response_reader_->wait_for_unread_message(10)) {
             SampleInfo info;
             if (response_reader_->take_next_sample(&st, &info) == ReturnCode_t::RETCODE_OK) {
                 if (info.valid_data) {
                     auto stop = std::chrono::steady_clock::now().time_since_epoch().count();
-                    std::cout << "Received response after " << stop-start << " ns\n";
+					rx_count += 1;
+//                    std::cout << "Received response after " << stop-start << " ns\n";
                 }
             }
         }else{
@@ -213,5 +217,9 @@ void HelloWorldDriver::run(unsigned size, unsigned rate) {
 		// Uncomment for data rate limiting. Comment for max throughput test.
         //std::chrono::steady_clock::time_point next_run = m_first_run + m_time_between_publish * loopcount++;
         //std::this_thread::sleep_until(next_run);
-    } while (true);
+    }
+	auto time_end = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double> running_time = time_end-time_begin;
+	std::cout << "Finished receiving " << num_samples << " samples in " << running_time.count() << " seconds.\n";
 }
+

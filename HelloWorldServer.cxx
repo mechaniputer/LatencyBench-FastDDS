@@ -77,10 +77,10 @@ bool HelloWorldServer::init()
     DomainParticipantQos pqos;
 	// FIXME If using on one machine, comment this out.
 	// Initial peer (server is 10.0.0.1 so our peer is 10.0.0.2, participant 0 on both sides)
-	eprosima::fastrtps::rtps::Locator_t initial_peer;
-	IPLocator::setIPv4(initial_peer, "10.0.0.2");
-	initial_peer.port = 7410; // 7400 + (250 * domainID) + 10 + (2 * participantID)
-	pqos.wire_protocol().builtin.initialPeersList.push_back(initial_peer);
+//	eprosima::fastrtps::rtps::Locator_t initial_peer;
+//	IPLocator::setIPv4(initial_peer, "10.0.0.2");
+//	initial_peer.port = 7410; // 7400 + (250 * domainID) + 10 + (2 * participantID)
+//	pqos.wire_protocol().builtin.initialPeersList.push_back(initial_peer);
 
 
     //CREATE THE PARTICIPANT
@@ -139,7 +139,7 @@ bool HelloWorldServer::init()
     // CREATE THE RESPONSE WRITER
 	DataWriterQos response_qos;
 	response_qos.reliable_writer_qos().times.heartbeatPeriod.seconds = 0;
-	response_qos.reliable_writer_qos().times.heartbeatPeriod.nanosec = 500;
+	response_qos.reliable_writer_qos().times.heartbeatPeriod.nanosec = 50000;
     response_writer_ = response_publisher_->create_datawriter(response_topic_, response_qos, &response_listener_);
     if (response_writer_ == nullptr)
     {
@@ -148,46 +148,7 @@ bool HelloWorldServer::init()
 
     return true;
 }
-/*
-void HelloWorldServer::SubListener::on_subscription_matched(
-        DataReader*,
-        const SubscriptionMatchedStatus& info)
-{
-    if (info.current_count_change == 1)
-    {
-        matched = info.total_count;
-        std::cout << "Subscriber matched." << std::endl;
-    }
-    else if (info.current_count_change == -1)
-    {
-        matched = info.total_count;
-        std::cout << "Subscriber unmatched." << std::endl;
-    }
-    else
-    {
-        std::cout << info.current_count_change
-                  << " is not a valid value for SubscriptionMatchedStatus current count change" << std::endl;
-    }
-}
 
-void HelloWorldServer::SubListener::on_data_available(
-        DataReader* reader)
-{
-    // Take data
-    HelloWorld st;
-    SampleInfo info;
-
-    if (reader->take_next_sample(&st, &info) == ReturnCode_t::RETCODE_OK)
-    {
-        if (info.valid_data)
-        {
-            // Print your structure data here.
-            ++samples;
-            std::cout << "Sample received, count=" << samples << std::endl;
-        }
-    }
-}
-*/
 void HelloWorldServer::run()
 {
     HelloWorld st;
@@ -195,9 +156,12 @@ void HelloWorldServer::run()
     std::cout << "Waiting for Data. " << std::endl;
     int counter = 0;
     while(true){
+//		std::cout << "Waiting\n";
         if(reader_->wait_for_unread_message(10)) {
+//			std::cout << "Taking\n";
             if (reader_->take_next_sample(&st, &info) == ReturnCode_t::RETCODE_OK) {
                 if (info.valid_data) {
+//					std::cout << "Responding\n";
                     // Print your structure data here.
                     //++(listener_.samples);
                     //std::cout << "Sample received, count=" << listener_.samples << std::endl;
