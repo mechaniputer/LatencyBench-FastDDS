@@ -142,11 +142,6 @@ void HelloWorldListener::PubListener::on_publication_matched(
 
 void HelloWorldListener::run() {
 	unsigned long long num_samples = 500000;
-    std::cout << "HelloWorld DataWriter waiting for DataReaders." << std::endl;
-    while (listener_.matched == 0)
-    {
-        std::this_thread::sleep_for(std::chrono::milliseconds(250)); // Sleep 250 ms
-    }
 
 	unsigned long long rx_count = 0;
 

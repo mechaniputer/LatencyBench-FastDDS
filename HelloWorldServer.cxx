@@ -144,16 +144,22 @@ bool HelloWorldServer::init()
 
 void HelloWorldServer::run()
 {
+    std::cout << "Server waiting for Listener." << std::endl;
+    while (listener_.matched == 0)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(250)); // Sleep 250 ms
+    }
+
     HelloWorld st;
     SampleInfo info;
     std::cout << "Waiting for Data. " << std::endl;
     while(true){
-//		std::cout << "Waiting\n";
+		std::cout << "Waiting\n";
         if(reader_->wait_for_unread_message(10)) {
-//			std::cout << "Taking\n";
+			std::cout << "Taking\n";
             if (reader_->take_next_sample(&st, &info) == ReturnCode_t::RETCODE_OK) {
                 if (info.valid_data) {
-//					std::cout << "Responding\n";
+					std::cout << "Responding\n";
                     // Print your structure data here.
                     //++(listener_.samples);
                     //std::cout << "Sample received, count=" << listener_.samples << std::endl;

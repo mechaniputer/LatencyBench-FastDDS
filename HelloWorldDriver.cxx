@@ -74,12 +74,7 @@ bool HelloWorldDriver::init(unsigned size, unsigned rate){
 
 	// QOS and initial peers
     DomainParticipantQos pqos;
-	// Initial peer (client is 10.0.0.2 so our peer is 10.0.0.1, participant 0 on both sides)
-//	eprosima::fastrtps::rtps::Locator_t initial_peer;
-//	IPLocator::setIPv4(initial_peer, "10.0.0.1");
-//	initial_peer.port = 7410; // 7400 + (250 * domainID) + 10 + (2 * participantID)
-//	pqos.wire_protocol().builtin.initialPeersList.push_back(initial_peer);
-	
+
     //CREATE THE PARTICIPANT
     pqos.name("Participant_pub");
     participant_ = DomainParticipantFactory::get_instance()->create_participant(0, pqos);
@@ -114,31 +109,6 @@ bool HelloWorldDriver::init(unsigned size, unsigned rate){
 	driver_qos.reliable_writer_qos().times.heartbeatPeriod.nanosec = 50000;
     writer_ = publisher_->create_datawriter(topic_, driver_qos, &listener_);
     if (writer_ == nullptr)
-    {
-        return false;
-    }
-
-
-    //CREATE THE RESPONSE SUBSCRIBER
-    response_subscriber_ = participant_->create_subscriber(SUBSCRIBER_QOS_DEFAULT, nullptr);
-    if (response_subscriber_ == nullptr)
-    {
-        return false;
-    }
-    //CREATE THE RESPONSE TOPIC
-    response_topic_ = participant_->create_topic(
-        "ResponseTopic",
-        type_.get_type_name(),
-        TOPIC_QOS_DEFAULT);
-    if (response_topic_ == nullptr)
-    {
-        return false;
-    }
-    //CREATE THE RESPONSE READER
-    DataReaderQos rqos = DATAREADER_QOS_DEFAULT;
-    rqos.reliability().kind = RELIABLE_RELIABILITY_QOS;
-    response_reader_ = response_subscriber_->create_datareader(response_topic_, rqos, &response_listener_);
-    if (response_reader_ == nullptr)
     {
         return false;
     }
@@ -187,39 +157,25 @@ void HelloWorldDriver::run(unsigned size, unsigned rate) {
     std::cout << "msg len: " << st.message().length() << std::endl;
     /* Initialize your structure here */
 
-    int msgsent = 0;
-	unsigned long long rx_count = 0;
+	unsigned long long tx_count = 0;
 
     // For send interval timing
     m_first_run = std::chrono::steady_clock::now();
     auto loopcount = 0;
-	// TODO Launch second thread for receive loop and latency measurement
 	auto time_begin = std::chrono::high_resolution_clock::now();
-    while(rx_count < num_samples){
+    while(tx_count < num_samples){
         // For latency measurement
         auto start = std::chrono::steady_clock::now().time_since_epoch().count();
         writer_->write(&st);
-        ++msgsent;
-//        std::cout << "Sent sample, count=" << msgsent << std::endl;
-        if(response_reader_->wait_for_unread_message(10)) {
-            SampleInfo info;
-            if (response_reader_->take_next_sample(&st, &info) == ReturnCode_t::RETCODE_OK) {
-                if (info.valid_data) {
-                    auto stop = std::chrono::steady_clock::now().time_since_epoch().count();
-					rx_count += 1;
-//                    std::cout << "Received response after " << stop-start << " ns\n";
-                }
-            }
-        }else{
-            std::cout << "Wait timed out\n";
-            break;
-        }
+		tx_count += 1;
+        std::cout << "Sent sample, count=" << tx_count << std::endl;
+
 		// Uncomment for data rate limiting. Comment for max throughput test.
         //std::chrono::steady_clock::time_point next_run = m_first_run + m_time_between_publish * loopcount++;
         //std::this_thread::sleep_until(next_run);
     }
 	auto time_end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> running_time = time_end-time_begin;
-	std::cout << "Finished receiving " << num_samples << " samples in " << running_time.count() << " seconds.\n";
+	std::cout << "Finished sending " << num_samples << " samples in " << running_time.count() << " seconds.\n";
 }
 
