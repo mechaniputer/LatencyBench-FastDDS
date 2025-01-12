@@ -141,13 +141,6 @@ void HelloWorldListener::PubListener::on_publication_matched(
 }
 
 void HelloWorldListener::run() {
-std::cout << "Listener waits for match." << std::endl;
-    while (listener_.matched == 0)
-    {
-        std::this_thread::sleep_for(std::chrono::milliseconds(250)); // Sleep 250 ms
-    }
-	std::cout << "Matched.\n";
-
 	unsigned long long num_samples = 500000;
 
 	unsigned long long rx_count = 0;
@@ -164,7 +157,7 @@ std::cout << "Listener waits for match." << std::endl;
                 if (info.valid_data) {
                     auto stop = std::chrono::steady_clock::now().time_since_epoch().count();
 					rx_count += 1;
-//                    std::cout << "Received response after " << stop-start << " ns\n";
+                    std::cout << "Received response " << rx_count << std::endl;;
                 }
             }
         }else{
