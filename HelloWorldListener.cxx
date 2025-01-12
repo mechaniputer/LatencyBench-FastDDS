@@ -141,6 +141,13 @@ void HelloWorldListener::PubListener::on_publication_matched(
 }
 
 void HelloWorldListener::run() {
+std::cout << "Listener waits for match." << std::endl;
+    while (listener_.matched == 0)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(250)); // Sleep 250 ms
+    }
+	std::cout << "Matched.\n";
+
 	unsigned long long num_samples = 500000;
 
 	unsigned long long rx_count = 0;
@@ -162,7 +169,7 @@ void HelloWorldListener::run() {
             }
         }else{
             std::cout << "Wait timed out\n";
-            break;
+			exit(0);
         }
     }
 	auto time_end = std::chrono::high_resolution_clock::now();

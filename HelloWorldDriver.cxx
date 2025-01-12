@@ -145,6 +145,7 @@ void HelloWorldDriver::run(unsigned size, unsigned rate) {
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(250)); // Sleep 250 ms
     }
+	std::cout << "Matched.\n";
 
     std::string s0 ("");
 	// size>>3 divides by 8 because the test string is already 8 bytes
