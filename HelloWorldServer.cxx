@@ -75,13 +75,6 @@ bool HelloWorldServer::init()
 
 	// QOS and initial peers
     DomainParticipantQos pqos;
-	// FIXME If using on one machine, comment this out.
-	// Initial peer (server is 10.0.0.1 so our peer is 10.0.0.2, participant 0 on both sides)
-//	eprosima::fastrtps::rtps::Locator_t initial_peer;
-//	IPLocator::setIPv4(initial_peer, "10.0.0.2");
-//	initial_peer.port = 7410; // 7400 + (250 * domainID) + 10 + (2 * participantID)
-//	pqos.wire_protocol().builtin.initialPeersList.push_back(initial_peer);
-
 
     //CREATE THE PARTICIPANT
     pqos.name("Participant_sub");

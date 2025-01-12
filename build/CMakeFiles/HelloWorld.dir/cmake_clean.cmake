@@ -1,6 +1,8 @@
 file(REMOVE_RECURSE
   "CMakeFiles/HelloWorld.dir/HelloWorldDriver.cxx.o"
   "CMakeFiles/HelloWorld.dir/HelloWorldDriver.cxx.o.d"
+  "CMakeFiles/HelloWorld.dir/HelloWorldListener.cxx.o"
+  "CMakeFiles/HelloWorld.dir/HelloWorldListener.cxx.o.d"
   "CMakeFiles/HelloWorld.dir/HelloWorldPubSubMain.cxx.o"
   "CMakeFiles/HelloWorld.dir/HelloWorldPubSubMain.cxx.o.d"
   "CMakeFiles/HelloWorld.dir/HelloWorldPubSubTypes.cxx.o"

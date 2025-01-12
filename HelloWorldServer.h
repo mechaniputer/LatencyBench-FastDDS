@@ -80,36 +80,13 @@ private:
 
         ~SubListener() override = default;
 
-        /*void on_data_available(
-                eprosima::fastdds::dds::DataReader* reader) override;
-
-        void on_subscription_matched(
-                eprosima::fastdds::dds::DataReader* reader,
-                const eprosima::fastdds::dds::SubscriptionMatchedStatus& info) override;
-        */
         int matched = 0;
         uint32_t samples = 0;
     }
     listener_;
 
     eprosima::fastdds::dds::DataWriterListener response_listener_;
-    /*
-    class PubListener : public eprosima::fastdds::dds::DataWriterListener
-    {
-    public:
 
-        PubListener() = default;
-
-        ~PubListener() override = default;
-
-        void on_publication_matched(
-                eprosima::fastdds::dds::DataWriter* writer,
-                const eprosima::fastdds::dds::PublicationMatchedStatus& info) override;
-
-        int matched = 0;
-    }
-    response_listener_;
-    */
 };
 
 #endif // _FAST_DDS_GENERATED_HELLOWORLD_SUBSCRIBER_H_

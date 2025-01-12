@@ -22,6 +22,7 @@
 
 #include "HelloWorldDriver.h"
 #include "HelloWorldServer.h"
+#include "HelloWorldListener.h"
 
 
 int main(int argc, char** argv) {
@@ -47,13 +48,15 @@ int main(int argc, char** argv) {
             type = 1;
         }else if (strcmp(argv[i], "-server") == 0){
             type = 2;
-        }
+        }else if (strcmp(argv[i], "-listener") == 0){
+            type = 3;
+		}
     }
 
     if ((type == 0) || (message_size == 0)){
         std::cout << "Error: Incorrect arguments." << std::endl;
         std::cout << "Usage: " << std::endl << std::endl;
-        std::cout << argv[0] << "-rate R -size S -driver|-server" << std::endl << std::endl;
+        std::cout << argv[0] << "-rate R -size S -driver|-server|-listener" << std::endl << std::endl;
         return 0;
     }
 
@@ -64,20 +67,28 @@ int main(int argc, char** argv) {
     {
         case 1:
         {
-            HelloWorldDriver mypub;
-            if (mypub.init(message_size, message_rate)) {
-                mypub.run(message_size, message_rate);
+            HelloWorldDriver mydriver;
+            if (mydriver.init(message_size, message_rate)) {
+                mydriver.run(message_size, message_rate);
             }
             break;
         }
         case 2:
         {
-            HelloWorldServer mysub;
-            if (mysub.init()) {
-                mysub.run();
+            HelloWorldServer myserver;
+            if (myserver.init()) {
+                myserver.run();
             }
             break;
         }
+        case 3:
+        {
+            HelloWorldListener mylistener;
+            if (mylistener.init()) {
+                mylistener.run();
+            }
+            break;
+		}
     }
 
     return 0;

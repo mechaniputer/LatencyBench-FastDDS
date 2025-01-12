@@ -15,7 +15,7 @@ message(STATUS "Configuring HelloWorld...")
 add_library(HelloWorld_lib HelloWorld.cxx)
 target_link_libraries(HelloWorld_lib fastcdr fastrtps)
 
-add_executable(HelloWorld HelloWorldPubSubTypes.cxx HelloWorldDriver.cxx HelloWorldServer.cxx HelloWorldPubSubMain.cxx)
+add_executable(HelloWorld HelloWorldPubSubTypes.cxx HelloWorldDriver.cxx HelloWorldServer.cxx HelloWorldListener.cxx HelloWorldPubSubMain.cxx)
 target_link_libraries(HelloWorld fastcdr fastrtps
         HelloWorld_lib )
 
