@@ -144,13 +144,6 @@ bool HelloWorldServer::init()
 
 void HelloWorldServer::run()
 {
-    std::cout << "Server waiting for Listener." << std::endl;
-    while (listener_.matched == 0)
-    {
-        std::this_thread::sleep_for(std::chrono::milliseconds(250)); // Sleep 250 ms
-    }
-	std::cout << "Matched.\n";
-
     HelloWorld st;
     SampleInfo info;
     std::cout << "Waiting for Data. " << std::endl;
