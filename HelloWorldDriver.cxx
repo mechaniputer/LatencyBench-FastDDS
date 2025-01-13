@@ -107,6 +107,7 @@ bool HelloWorldDriver::init(unsigned size, unsigned rate){
 	DataWriterQos driver_qos;
 	driver_qos.reliable_writer_qos().times.heartbeatPeriod.seconds = 0;
 	driver_qos.reliable_writer_qos().times.heartbeatPeriod.nanosec = 50000;
+	driver_qos.history().kind = KEEP_ALL_HISTORY_QOS;
     writer_ = publisher_->create_datawriter(topic_, driver_qos, &listener_);
     if (writer_ == nullptr)
     {
