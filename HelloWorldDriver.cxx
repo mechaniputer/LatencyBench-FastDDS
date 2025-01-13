@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//	 http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -40,145 +40,145 @@ using namespace eprosima::fastdds::dds;
 using namespace eprosima::fastrtps::rtps;
 
 HelloWorldDriver::HelloWorldDriver()
-    : participant_(nullptr)
-    , publisher_(nullptr)
-    , topic_(nullptr)
-    , writer_(nullptr)
-    , type_(new HelloWorldPubSubType())
+	: participant_(nullptr)
+	, publisher_(nullptr)
+	, topic_(nullptr)
+	, writer_(nullptr)
+	, type_(new HelloWorldPubSubType())
 {
 }
 
 HelloWorldDriver::~HelloWorldDriver()
 {
-    if (writer_ != nullptr)
-    {
-        publisher_->delete_datawriter(writer_);
-    }
-    if (publisher_ != nullptr)
-    {
-        participant_->delete_publisher(publisher_);
-    }
-    if (topic_ != nullptr)
-    {
-        participant_->delete_topic(topic_);
-    }
-    DomainParticipantFactory::get_instance()->delete_participant(participant_);
+	if (writer_ != nullptr)
+	{
+		publisher_->delete_datawriter(writer_);
+	}
+	if (publisher_ != nullptr)
+	{
+		participant_->delete_publisher(publisher_);
+	}
+	if (topic_ != nullptr)
+	{
+		participant_->delete_topic(topic_);
+	}
+	DomainParticipantFactory::get_instance()->delete_participant(participant_);
 }
 
 bool HelloWorldDriver::init(unsigned message_size, unsigned rate){
-    /* Initialize data_ here */
-    auto period = std::chrono::duration<double>(1.0 / rate);
-    auto period_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(period);
-    m_time_between_publish = period_ns;
-    std::cout << (int)m_time_between_publish.count() << std::endl;
+	/* Initialize data_ here */
+	auto period = std::chrono::duration<double>(1.0 / rate);
+	auto period_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(period);
+	m_time_between_publish = period_ns;
+	std::cout << (int)m_time_between_publish.count() << std::endl;
 
 	// QOS and initial peers
-    DomainParticipantQos pqos;
+	DomainParticipantQos pqos;
 
-    //CREATE THE PARTICIPANT
-    pqos.name("Participant_pub");
-    participant_ = DomainParticipantFactory::get_instance()->create_participant(0, pqos);
-    if (participant_ == nullptr)
-    {
-        return false;
-    }
+	//CREATE THE PARTICIPANT
+	pqos.name("Participant_pub");
+	participant_ = DomainParticipantFactory::get_instance()->create_participant(0, pqos);
+	if (participant_ == nullptr)
+	{
+		return false;
+	}
 
-    //REGISTER THE TYPE
-    type_.register_type(participant_);
+	//REGISTER THE TYPE
+	type_.register_type(participant_);
 
-    //CREATE THE PUBLISHER
-    publisher_ = participant_->create_publisher(PUBLISHER_QOS_DEFAULT, nullptr);
-    if (publisher_ == nullptr)
-    {
-        return false;
-    }
+	//CREATE THE PUBLISHER
+	publisher_ = participant_->create_publisher(PUBLISHER_QOS_DEFAULT, nullptr);
+	if (publisher_ == nullptr)
+	{
+		return false;
+	}
 
-    //CREATE THE TOPIC
-    topic_ = participant_->create_topic(
-        "HelloWorldTopic",
-        type_.get_type_name(),
-        TOPIC_QOS_DEFAULT);
-    if (topic_ == nullptr)
-    {
-        return false;
-    }
+	//CREATE THE TOPIC
+	topic_ = participant_->create_topic(
+		"HelloWorldTopic",
+		type_.get_type_name(),
+		TOPIC_QOS_DEFAULT);
+	if (topic_ == nullptr)
+	{
+		return false;
+	}
 
-    // CREATE THE WRITER
+	// CREATE THE WRITER
 	DataWriterQos driver_qos;
 	driver_qos.reliable_writer_qos().times.heartbeatPeriod.seconds = 0;
 	driver_qos.reliable_writer_qos().times.heartbeatPeriod.nanosec = 50000;
 	driver_qos.history().kind = KEEP_ALL_HISTORY_QOS;
 	driver_qos.durability().kind = TRANSIENT_LOCAL_DURABILITY_QOS;
-    writer_ = publisher_->create_datawriter(topic_, driver_qos, &listener_);
-    if (writer_ == nullptr)
-    {
-        return false;
-    }
+	writer_ = publisher_->create_datawriter(topic_, driver_qos, &listener_);
+	if (writer_ == nullptr)
+	{
+		return false;
+	}
 
-    std::cout << "Driver entities created." << std::endl;
-    return true;
+	std::cout << "Driver entities created." << std::endl;
+	return true;
 }
 
 void HelloWorldDriver::PubListener::on_publication_matched(
-        eprosima::fastdds::dds::DataWriter*,
-        const eprosima::fastdds::dds::PublicationMatchedStatus& info)
+		eprosima::fastdds::dds::DataWriter*,
+		const eprosima::fastdds::dds::PublicationMatchedStatus& info)
 {
-    if (info.current_count_change == 1)
-    {
-        matched = info.total_count;
-        std::cout << "DataWriter matched." << std::endl;
-    }
-    else if (info.current_count_change == -1)
-    {
-        matched = info.total_count;
-        std::cout << "DataWriter unmatched." << std::endl;
-    }
-    else
-    {
-        std::cout << info.current_count_change
-                  << " is not a valid value for PublicationMatchedStatus current count change" << std::endl;
-    }
+	if (info.current_count_change == 1)
+	{
+		matched = info.total_count;
+		std::cout << "DataWriter matched." << std::endl;
+	}
+	else if (info.current_count_change == -1)
+	{
+		matched = info.total_count;
+		std::cout << "DataWriter unmatched." << std::endl;
+	}
+	else
+	{
+		std::cout << info.current_count_change
+				  << " is not a valid value for PublicationMatchedStatus current count change" << std::endl;
+	}
 }
 
 void HelloWorldDriver::run(unsigned message_size, unsigned rate) {
-	unsigned long long num_samples = 500000;
-    std::cout << "HelloWorld DataWriter waiting for DataReaders." << std::endl;
-    while (listener_.matched == 0)
-    {
-        std::this_thread::sleep_for(std::chrono::milliseconds(250)); // Sleep 250 ms
-    }
+	unsigned long long num_samples = 50000;
+	std::cout << "HelloWorld DataWriter waiting for DataReaders." << std::endl;
+	while (listener_.matched == 0)
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(250)); // Sleep 250 ms
+	}
 	std::cout << "Matched. Sending initial sample.\n";
 
 	// Send initial sample to notify peers of how many samples to expect
-    HelloWorld init_sample;
-    init_sample.message(std::to_string(num_samples));
+	HelloWorld init_sample;
+	init_sample.message(std::to_string(num_samples));
 	writer_->write(&init_sample);
 	std::cout << "Sent init sample. Will begin test momentarily.\n";
 
-    std::string s0 ("");
+	std::string s0 ("");
 	// message_size>>3 divides by 8 because the test string is already 8 bytes
-    for(int i=0; i<(message_size>>3); i++){
-        s0.append("DEADBEEF");
-    }
-    HelloWorld st;
-    st.message(s0);
-    std::cout << "msg len: " << st.message().length() << std::endl;
+	for(int i=0; i<(message_size>>3); i++){
+		s0.append("DEADBEEF");
+	}
+	HelloWorld st;
+	st.message(s0);
+	std::cout << "msg len: " << st.message().length() << std::endl;
 
 	unsigned long long tx_count = 0;
-    m_first_run = std::chrono::steady_clock::now();
-    auto loopcount = 0;
+	m_first_run = std::chrono::steady_clock::now();
+	auto loopcount = 0;
 	auto time_begin = std::chrono::high_resolution_clock::now();
-    while(tx_count < num_samples){
-        // For latency measurement
-        auto start = std::chrono::steady_clock::now().time_since_epoch().count();
-        writer_->write(&st);
+	while(tx_count < num_samples){
+		// For latency measurement
+		auto start = std::chrono::steady_clock::now().time_since_epoch().count();
+		writer_->write(&st);
 		tx_count += 1;
-        std::cout << "Sent sample, count=" << tx_count << std::endl;
+		std::cout << "Sent sample, count=" << tx_count << std::endl;
 
 		// Uncomment for data rate limiting. Comment for max throughput test.
-        //std::chrono::steady_clock::time_point next_run = m_first_run + m_time_between_publish * loopcount++;
-        //std::this_thread::sleep_until(next_run);
-    }
+		//std::chrono::steady_clock::time_point next_run = m_first_run + m_time_between_publish * loopcount++;
+		//std::this_thread::sleep_until(next_run);
+	}
 	auto time_end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> running_time = time_end-time_begin;
 	std::cout << "Finished sending " << num_samples << " samples in " << running_time.count() << " seconds.\n";

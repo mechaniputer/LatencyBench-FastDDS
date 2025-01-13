@@ -158,7 +158,8 @@ void HelloWorldServer::run()
 			if (reader_->take_next_sample(&st, &info) == ReturnCode_t::RETCODE_OK) {
 				if (info.valid_data) {
 					num_samples = std::stoull(st.message());
-					std::cout << "Expecting " << num_samples << " samples\n";
+					std::cout << "Expecting " << num_samples << " samples. Passing it on.\n";
+					response_writer_->write(&st);
 					break;
 				}
 			}
@@ -167,7 +168,6 @@ void HelloWorldServer::run()
 			exit(-1);
 		}
 	}
-	std::this_thread::sleep_for(std::chrono::seconds(5));
 
 	// Begin CPU measurement
 	unsigned int cpu_cores = std::thread::hardware_concurrency();
