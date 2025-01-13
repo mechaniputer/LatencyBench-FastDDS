@@ -65,7 +65,7 @@ HelloWorldDriver::~HelloWorldDriver()
     DomainParticipantFactory::get_instance()->delete_participant(participant_);
 }
 
-bool HelloWorldDriver::init(unsigned size, unsigned rate){
+bool HelloWorldDriver::init(unsigned message_size, unsigned rate){
     /* Initialize data_ here */
     auto period = std::chrono::duration<double>(1.0 / rate);
     auto period_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(period);
@@ -140,29 +140,31 @@ void HelloWorldDriver::PubListener::on_publication_matched(
     }
 }
 
-void HelloWorldDriver::run(unsigned size, unsigned rate) {
+void HelloWorldDriver::run(unsigned message_size, unsigned rate) {
 	unsigned long long num_samples = 500000;
     std::cout << "HelloWorld DataWriter waiting for DataReaders." << std::endl;
     while (listener_.matched == 0)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(250)); // Sleep 250 ms
     }
-	std::cout << "Matched.\n";
+	std::cout << "Matched. Sending initial sample.\n";
+
+	// Send initial sample to notify peers of how many samples to expect
+    HelloWorld init_sample;
+    init_sample.message(std::to_string(num_samples));
+	writer_->write(&init_sample);
+	std::cout << "Sent init sample. Will begin test momentarily.\n";
 
     std::string s0 ("");
-	// size>>3 divides by 8 because the test string is already 8 bytes
-    for(int i=0; i<(size>>3); i++){
+	// message_size>>3 divides by 8 because the test string is already 8 bytes
+    for(int i=0; i<(message_size>>3); i++){
         s0.append("DEADBEEF");
     }
     HelloWorld st;
     st.message(s0);
-
     std::cout << "msg len: " << st.message().length() << std::endl;
-    /* Initialize your structure here */
 
 	unsigned long long tx_count = 0;
-
-    // For send interval timing
     m_first_run = std::chrono::steady_clock::now();
     auto loopcount = 0;
 	auto time_begin = std::chrono::high_resolution_clock::now();
