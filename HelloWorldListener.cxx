@@ -180,7 +180,7 @@ void HelloWorldListener::run() {
 			}
 		}else{
 			std::cout << "Wait timed out\n";
-			exit(0);
+			exit(-1);
 		}
 	}
 	auto time_end = std::chrono::high_resolution_clock::now();
