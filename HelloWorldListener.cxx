@@ -109,6 +109,8 @@ bool HelloWorldListener::init(){
     //CREATE THE RESPONSE READER
     DataReaderQos rqos = DATAREADER_QOS_DEFAULT;
     rqos.reliability().kind = RELIABLE_RELIABILITY_QOS;
+	rqos.history().kind = KEEP_ALL_HISTORY_QOS;
+	rqos.durability().kind = TRANSIENT_LOCAL_DURABILITY_QOS;
     response_reader_ = response_subscriber_->create_datareader(response_topic_, rqos, &response_listener_);
     if (response_reader_ == nullptr)
     {

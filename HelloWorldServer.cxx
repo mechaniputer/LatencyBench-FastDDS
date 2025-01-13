@@ -107,6 +107,8 @@ bool HelloWorldServer::init()
     //CREATE THE READER
     DataReaderQos rqos = DATAREADER_QOS_DEFAULT;
     rqos.reliability().kind = RELIABLE_RELIABILITY_QOS;
+	rqos.history().kind = KEEP_ALL_HISTORY_QOS;
+	rqos.durability().kind = TRANSIENT_LOCAL_DURABILITY_QOS;
     reader_ = subscriber_->create_datareader(topic_, rqos, &listener_);
     if (reader_ == nullptr)
     {
@@ -134,6 +136,7 @@ bool HelloWorldServer::init()
 	response_qos.reliable_writer_qos().times.heartbeatPeriod.seconds = 0;
 	response_qos.reliable_writer_qos().times.heartbeatPeriod.nanosec = 50000;
 	response_qos.history().kind = KEEP_ALL_HISTORY_QOS;
+	response_qos.durability().kind = TRANSIENT_LOCAL_DURABILITY_QOS;
     response_writer_ = response_publisher_->create_datawriter(response_topic_, response_qos, &response_listener_);
     if (response_writer_ == nullptr)
     {
