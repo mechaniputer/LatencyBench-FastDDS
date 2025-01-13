@@ -133,6 +133,7 @@ bool HelloWorldServer::init()
 	}
 	// CREATE THE RESPONSE WRITER
 	DataWriterQos response_qos;
+	response_qos.reliability().kind = RELIABLE_RELIABILITY_QOS;
 	response_qos.reliable_writer_qos().times.heartbeatPeriod.seconds = 0;
 	response_qos.reliable_writer_qos().times.heartbeatPeriod.nanosec = 50000;
 	response_qos.history().kind = KEEP_ALL_HISTORY_QOS;
