@@ -166,12 +166,14 @@ void HelloWorldListener::run() {
 	unsigned long long rx_count = 0;
 
 	auto time_begin = std::chrono::high_resolution_clock::now();
+	// Main loop
 	while(rx_count < num_samples){
-		// For latency measurement
-		auto start = std::chrono::steady_clock::now().time_since_epoch().count();
+		std::cout << "Waiting\n";
 		if(response_reader_->wait_for_unread_message(10)) {
-			SampleInfo info;
-			if (response_reader_->take_next_sample(&st, &info) == ReturnCode_t::RETCODE_OK) {
+			std::cout << "Taking\n";
+			while(rx_count < num_samples){
+				if(response_reader_->take_next_sample(&st, &info) != ReturnCode_t::RETCODE_OK) break;
+
 				if (info.valid_data) {
 					auto stop = std::chrono::steady_clock::now().time_since_epoch().count();
 					rx_count += 1;
@@ -183,6 +185,7 @@ void HelloWorldListener::run() {
 			exit(-1);
 		}
 	}
+
 	auto time_end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> running_time = time_end-time_begin;
 	std::cout << "Finished receiving " << num_samples << " samples in " << running_time.count() << " seconds.\n";

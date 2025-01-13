@@ -153,21 +153,24 @@ void HelloWorldServer::run()
 	SampleInfo info;
 	unsigned long long num_samples = 0;
 
-	while(true){
-		std::cout << "Waiting for initial sample. " << std::endl;
-		if(reader_->wait_for_unread_message(10)) {
-			if (reader_->take_next_sample(&st, &info) == ReturnCode_t::RETCODE_OK) {
-				if (info.valid_data) {
-					num_samples = std::stoull(st.message());
-					std::cout << "Expecting " << num_samples << " samples. Passing it on.\n";
-					response_writer_->write(&st);
-					break;
-				}
+	std::cout << "Waiting for initial sample. " << std::endl;
+	if(reader_->wait_for_unread_message(10)) {
+		if (reader_->take_next_sample(&st, &info) == ReturnCode_t::RETCODE_OK) {
+			if (info.valid_data) {
+				num_samples = std::stoull(st.message());
+				std::cout << "Expecting " << num_samples << " samples. Passing it on.\n";
+				response_writer_->write(&st);
+			}else{
+				std::cout << "Invalid data in init sample\n";
+				exit(-1);
 			}
 		}else{
-			std::cout << "Wait timed out\n";
+			std::cout << "Failed to take init sample\n";
 			exit(-1);
 		}
+	}else{
+		std::cout << "Wait timed out\n";
+		exit(-1);
 	}
 
 	// Begin CPU measurement
@@ -182,18 +185,16 @@ void HelloWorldServer::run()
 	// Main loop
 	unsigned long long tx_count = 0;
 	while(tx_count < num_samples){
-//		std::cout << "Waiting\n";
+		std::cout << "Waiting\n";
 		if(reader_->wait_for_unread_message(10)) {
-//			std::cout << "Taking\n";
-			if (reader_->take_next_sample(&st, &info) == ReturnCode_t::RETCODE_OK) {
+			std::cout << "Taking\n";
+			while(tx_count < num_samples){
+				if(reader_->take_next_sample(&st, &info) != ReturnCode_t::RETCODE_OK) break;
+
 				if (info.valid_data) {
 					std::cout << "Responding to sample " << tx_count << std::endl;;
-					// Print your structure data here.
-					//++(listener_.samples);
-					//std::cout << "Sample received, count=" << listener_.samples << std::endl;
 					response_writer_->write(&st);
 					tx_count += 1;
-					//std::cout << "Response sent back\n";
 				}
 			}
 		}else{
