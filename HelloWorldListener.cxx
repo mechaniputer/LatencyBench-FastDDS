@@ -168,16 +168,16 @@ void HelloWorldListener::run() {
 	auto time_begin = std::chrono::high_resolution_clock::now();
 	// Main loop
 	while(rx_count < num_samples){
-		std::cout << "Waiting\n";
+//		std::cout << "Waiting\n";
 		if(response_reader_->wait_for_unread_message(10)) {
-			std::cout << "Taking\n";
+//			std::cout << "Taking\n";
 			while(rx_count < num_samples){
 				if(response_reader_->take_next_sample(&st, &info) != ReturnCode_t::RETCODE_OK) break;
 
 				if (info.valid_data) {
 					auto stop = std::chrono::steady_clock::now().time_since_epoch().count();
 					rx_count += 1;
-					std::cout << "Received response " << rx_count << std::endl;;
+//					std::cout << "Received response " << rx_count << std::endl;;
 				}
 			}
 		}else{

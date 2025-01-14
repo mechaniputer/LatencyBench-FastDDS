@@ -174,10 +174,10 @@ void HelloWorldDriver::run(unsigned message_size, unsigned rate) {
 		// For latency measurement
 		auto start = std::chrono::steady_clock::now().time_since_epoch().count();
 		while(!writer_->write(&st)){
-			std::cout << "Write failed. Retrying.\n";
+//			std::cout << "Write failed. Retrying.\n";
 		}
 		tx_count += 1;
-		std::cout << "Sent sample, count=" << tx_count << std::endl;
+//		std::cout << "Sent sample, count=" << tx_count << std::endl;
 
 		// Uncomment for data rate limiting. Comment for max throughput test.
 		//std::chrono::steady_clock::time_point next_run = m_first_run + m_time_between_publish * loopcount++;

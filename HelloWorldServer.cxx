@@ -186,16 +186,16 @@ void HelloWorldServer::run()
 	// Main loop
 	unsigned long long tx_count = 0;
 	while(tx_count < num_samples){
-		std::cout << "Waiting\n";
+//		std::cout << "Waiting\n";
 		if(reader_->wait_for_unread_message(10)) {
-			std::cout << "Taking\n";
+//			std::cout << "Taking\n";
 			while(tx_count < num_samples){
 				if(reader_->take_next_sample(&st, &info) != ReturnCode_t::RETCODE_OK) break;
 
 				if (info.valid_data) {
-					std::cout << "Responding to sample " << tx_count << std::endl;;
+//					std::cout << "Responding to sample " << tx_count << std::endl;;
 					while(!response_writer_->write(&st)){
-						std::cout << "Write failed. Retrying.\n";
+//						std::cout << "Write failed. Retrying.\n";
 					}
 					tx_count += 1;
 				}
