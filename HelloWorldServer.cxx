@@ -193,7 +193,9 @@ void HelloWorldServer::run()
 
 				if (info.valid_data) {
 					std::cout << "Responding to sample " << tx_count << std::endl;;
-					response_writer_->write(&st);
+					while(response_writer_->write(&st) != ReturnCode_t::RETCODE_OK){
+						std::cout << "Write failed. Retrying.\n";
+					}
 					tx_count += 1;
 				}
 			}

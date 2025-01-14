@@ -172,7 +172,9 @@ void HelloWorldDriver::run(unsigned message_size, unsigned rate) {
 	while(tx_count < num_samples){
 		// For latency measurement
 		auto start = std::chrono::steady_clock::now().time_since_epoch().count();
-		writer_->write(&st);
+		while(writer_->write(&st) != ReturnCode_t::RETCODE_OK){
+			std::cout << "Write failed. Retrying.\n";
+		}
 		tx_count += 1;
 		std::cout << "Sent sample, count=" << tx_count << std::endl;
 
