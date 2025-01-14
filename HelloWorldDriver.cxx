@@ -186,5 +186,7 @@ void HelloWorldDriver::run(unsigned message_size, unsigned rate) {
 	auto time_end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> running_time = time_end-time_begin;
 	std::cout << "Finished sending " << num_samples << " samples in " << running_time.count() << " seconds.\n";
+	std::cout << "Press enter to exit.\n";
+	std::cin.get();
 }
 

@@ -217,5 +217,6 @@ void HelloWorldServer::run()
 	auto user_diff = user_time_end - user_time_start;
 	std::cout << "user_diff="<< user_diff << "\nsystem_diff=" << system_diff << "\n";
 	std::cout << "CPU: " << 100.0F * static_cast<float>(user_diff + system_diff) / static_cast<float>(wall_diff * cpu_cores) << "%\n";
-
+	std::cout << "Press enter to exit.\n";
+	std::cin.get();
 }
