@@ -66,11 +66,6 @@ HelloWorldDriver::~HelloWorldDriver()
 }
 
 bool HelloWorldDriver::init(unsigned message_size, unsigned rate){
-	/* Initialize data_ here */
-	auto period = std::chrono::duration<double>(1.0 / rate);
-	auto period_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(period);
-	m_time_between_publish = period_ns;
-	std::cout << (int)m_time_between_publish.count() << std::endl;
 
 	// QOS and initial peers
 	DomainParticipantQos pqos;
@@ -108,7 +103,7 @@ bool HelloWorldDriver::init(unsigned message_size, unsigned rate){
 	driver_qos.reliability().kind = RELIABLE_RELIABILITY_QOS;
 	driver_qos.reliability().max_blocking_time = eprosima::fastrtps::Duration_t(2,0); // 2 sec
 	driver_qos.reliable_writer_qos().times.heartbeatPeriod.seconds = 0;
-	driver_qos.reliable_writer_qos().times.heartbeatPeriod.nanosec = 500000; // 500,000ns => 2000 Hz
+	driver_qos.reliable_writer_qos().times.heartbeatPeriod.nanosec = 50000; // 50,000ns => 20000 Hz
 	driver_qos.history().kind = KEEP_ALL_HISTORY_QOS;
 	driver_qos.durability().kind = TRANSIENT_LOCAL_DURABILITY_QOS;
 	writer_ = publisher_->create_datawriter(topic_, driver_qos, &listener_);
@@ -143,6 +138,7 @@ void HelloWorldDriver::PubListener::on_publication_matched(
 }
 
 void HelloWorldDriver::run(unsigned message_size, unsigned rate) {
+
 	unsigned long long num_samples = 50000;
 	std::cout << "HelloWorld DataWriter waiting for DataReaders." << std::endl;
 	while (listener_.matched == 0)
@@ -166,26 +162,31 @@ void HelloWorldDriver::run(unsigned message_size, unsigned rate) {
 	st.message(s0);
 	std::cout << "msg len: " << st.message().length() << std::endl;
 
+	// Compute message interval
+	auto period = std::chrono::duration<double>(1.0 / rate);
+	auto period_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(period);
+	auto time_between_publish = period_ns;
+
+	auto first_run = std::chrono::high_resolution_clock::now();
+	unsigned long loopcount = 0;
 	unsigned long long tx_count = 0;
-	m_first_run = std::chrono::steady_clock::now();
-	auto loopcount = 0;
-	auto time_begin = std::chrono::high_resolution_clock::now();
 	while(tx_count < num_samples){
 		// For latency measurement
-		auto start = std::chrono::steady_clock::now().time_since_epoch().count();
+		auto time_tx = std::chrono::high_resolution_clock::now();
+		auto time_tx_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(time_tx.time_since_epoch()).count();
+		std::memcpy(&s0[0], &time_tx_ns, sizeof(int64_t));
+		st.message(s0);
 		while(!writer_->write(&st)){
 //			std::cout << "Write failed. Retrying.\n";
 		}
 		tx_count += 1;
 //		std::cout << "Sent sample, count=" << tx_count << std::endl;
-
-		// Uncomment for data rate limiting. Comment for max throughput test.
-		//std::chrono::steady_clock::time_point next_run = m_first_run + m_time_between_publish * loopcount++;
-		//std::this_thread::sleep_until(next_run);
+		// Rate limiting
+		std::chrono::high_resolution_clock::time_point next_run = first_run + time_between_publish * loopcount++;
+		std::this_thread::sleep_until(next_run);
 	}
 	auto time_end = std::chrono::high_resolution_clock::now();
-	std::chrono::duration<double> running_time = time_end-time_begin;
 	writer_->wait_for_acknowledgments(10);
-	std::cout << "Finished sending " << num_samples << " samples in " << running_time.count() << " seconds.\n";
+	std::cout << "Finished sending " << num_samples << " samples\n";
 }
 

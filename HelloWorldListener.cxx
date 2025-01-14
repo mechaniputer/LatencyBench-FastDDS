@@ -163,8 +163,8 @@ void HelloWorldListener::run() {
 		}
 	}
 
+	uint64_t total_latency = 0;
 	unsigned long long rx_count = 0;
-
 	auto time_begin = std::chrono::high_resolution_clock::now();
 	// Main loop
 	while(rx_count < num_samples){
@@ -175,9 +175,19 @@ void HelloWorldListener::run() {
 				if(response_reader_->take_next_sample(&st, &info) != ReturnCode_t::RETCODE_OK) break;
 
 				if (info.valid_data) {
-					auto stop = std::chrono::steady_clock::now().time_since_epoch().count();
+					auto time_rx = std::chrono::high_resolution_clock::now();
+					auto time_rx_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(time_rx.time_since_epoch()).count();
 					rx_count += 1;
-//					std::cout << "Received response " << rx_count << std::endl;;
+					std::cout << "Received response " << rx_count << std::endl;;
+
+					// Compute latency of this sample
+					int64_t nanoseconds_from_sample;
+					std::memcpy(&nanoseconds_from_sample, &st.message()[0], sizeof(int64_t));
+					auto time_tx = std::chrono::time_point<std::chrono::high_resolution_clock>(std::chrono::nanoseconds(nanoseconds_from_sample));
+					//std::cout << "Timestamp from sample: " << nanoseconds_from_sample << std::endl;
+					//std::cout << "Timestamp received: " << time_rx_ns << std::endl;
+					//std::cout << "Latency: " << time_rx_ns - nanoseconds_from_sample << " ns\n";
+					total_latency += time_rx_ns - nanoseconds_from_sample;
 				}
 			}
 		}else{
@@ -191,6 +201,10 @@ void HelloWorldListener::run() {
 	std::cout << "Finished receiving " << num_samples << " samples in " << running_time.count() << " seconds.\n";
 	unsigned long long data_rate = num_samples / running_time.count();
 	std::cout << "Data rate was " << data_rate << " samples/sec.\n";
-	// TODO Latency stats
+	unsigned long long avg_latency = total_latency / num_samples;
+	std::cout << "Average latency per sample was " << avg_latency << " ns\n";
+	double avg_latency_sec = (double)avg_latency / 1000000000;
+	std::cout << "That is " << avg_latency_sec << " seconds\n";
+	std::cout << "Average samples in flight: " << data_rate*avg_latency_sec << "\n";
 }
 

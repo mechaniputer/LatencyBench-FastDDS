@@ -57,9 +57,6 @@ private:
     eprosima::fastdds::dds::Topic* response_topic_; 
     eprosima::fastdds::dds::DataReader* response_reader_;
     eprosima::fastdds::dds::DataReaderListener response_listener_;
-
-    std::chrono::nanoseconds m_time_between_publish;
-    std::chrono::steady_clock::time_point m_first_run;
     
     class PubListener : public eprosima::fastdds::dds::DataWriterListener
     {
