@@ -106,6 +106,7 @@ bool HelloWorldDriver::init(unsigned message_size, unsigned rate){
 	// CREATE THE WRITER
 	DataWriterQos driver_qos;
 	driver_qos.reliability().kind = RELIABLE_RELIABILITY_QOS;
+	driver_qos.reliability().max_blocking_time = eprosima::fastrtps::Duration_t(2,0); // 2 sec
 	driver_qos.reliable_writer_qos().times.heartbeatPeriod.seconds = 0;
 	driver_qos.reliable_writer_qos().times.heartbeatPeriod.nanosec = 50000;
 	driver_qos.history().kind = KEEP_ALL_HISTORY_QOS;
