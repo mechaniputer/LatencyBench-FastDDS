@@ -29,6 +29,7 @@ int main(int argc, char** argv) {
     int type = 0;
 	unsigned message_size = 0;
 	unsigned message_rate = 1; // Default 1 Hz
+	unsigned message_count = 10;
 	for (int i = 0; i < argc; ++i) {
 		if(!strncmp(argv[i], "-rate",5)){
 			if(i < argc-1){
@@ -44,6 +45,13 @@ int main(int argc, char** argv) {
 				printf("ERROR: SIZE NOT PROVIDED\n");
 				return -1;
 			}
+		}else if(!strncmp(argv[i], "-count",6)){
+			if(i < argc-1){
+				message_count = atoi(argv[i+1]);
+			}else{
+				printf("ERROR: COUNT NOT PROVIDED\n");
+				return -1;
+			}
         }else if (strcmp(argv[i], "-driver") == 0){
             type = 1;
         }else if (strcmp(argv[i], "-server") == 0){
@@ -56,7 +64,7 @@ int main(int argc, char** argv) {
     if ((type == 0) || (message_size == 0)){
         std::cout << "Error: Incorrect arguments." << std::endl;
         std::cout << "Usage: " << std::endl << std::endl;
-        std::cout << argv[0] << "-rate R -size S -driver|-server|-listener" << std::endl << std::endl;
+        std::cout << argv[0] << "-rate R -size S -count C -driver|-server|-listener" << std::endl << std::endl;
         return 0;
     }
 
@@ -68,8 +76,8 @@ int main(int argc, char** argv) {
         case 1:
         {
             HelloWorldDriver mydriver;
-            if (mydriver.init(message_size, message_rate)) {
-                mydriver.run(message_size, message_rate);
+            if (mydriver.init(message_size, message_rate, message_count)) {
+                mydriver.run(message_size, message_rate, message_count);
             }
             break;
         }

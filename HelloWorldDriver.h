@@ -41,9 +41,9 @@ public:
 
     virtual ~HelloWorldDriver();
 
-    bool init(unsigned int, unsigned int);
+    bool init(unsigned int, unsigned int, unsigned count);
 
-    void run(unsigned int, unsigned int);
+    void run(unsigned int, unsigned int, unsigned count);
 
 private:
 

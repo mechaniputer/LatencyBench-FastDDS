@@ -178,7 +178,7 @@ void HelloWorldListener::run() {
 					auto time_rx = std::chrono::high_resolution_clock::now();
 					auto time_rx_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(time_rx.time_since_epoch()).count();
 					rx_count += 1;
-					std::cout << "Received response " << rx_count << std::endl;;
+					//std::cout << "Received response " << rx_count << std::endl;;
 
 					// Compute latency of this sample
 					int64_t nanoseconds_from_sample;

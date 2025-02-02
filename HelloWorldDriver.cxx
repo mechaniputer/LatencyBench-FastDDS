@@ -65,7 +65,7 @@ HelloWorldDriver::~HelloWorldDriver()
 	DomainParticipantFactory::get_instance()->delete_participant(participant_);
 }
 
-bool HelloWorldDriver::init(unsigned message_size, unsigned rate){
+bool HelloWorldDriver::init(unsigned message_size, unsigned rate, unsigned count){
 
 	// QOS and initial peers
 	DomainParticipantQos pqos;
@@ -137,9 +137,9 @@ void HelloWorldDriver::PubListener::on_publication_matched(
 	}
 }
 
-void HelloWorldDriver::run(unsigned message_size, unsigned rate) {
+void HelloWorldDriver::run(unsigned message_size, unsigned rate, unsigned count) {
 
-	unsigned long long num_samples = 50000;
+	unsigned long long num_samples = count;
 	std::cout << "HelloWorld DataWriter waiting for DataReaders." << std::endl;
 	while (listener_.matched == 0)
 	{
