@@ -135,8 +135,8 @@ bool HelloWorldServer::init()
 	DataWriterQos response_qos;
 	response_qos.reliability().kind = RELIABLE_RELIABILITY_QOS;
 	response_qos.reliability().max_blocking_time = eprosima::fastrtps::Duration_t(2,0); // 2 sec
-	response_qos.reliable_writer_qos().times.heartbeatPeriod.seconds = 0;
-	response_qos.reliable_writer_qos().times.heartbeatPeriod.nanosec = 500000; // 500,000ns => 2000 Hz
+	//response_qos.reliable_writer_qos().times.heartbeatPeriod.seconds = 0;
+	//response_qos.reliable_writer_qos().times.heartbeatPeriod.nanosec = 500000; // 500,000ns => 2000 Hz
 	//response_qos.reliable_writer_qos().times.heartbeatPeriod.nanosec = 1000000; // 1,000,000ns => 1000 Hz
 	response_qos.history().kind = KEEP_ALL_HISTORY_QOS;
 	response_qos.durability().kind = TRANSIENT_LOCAL_DURABILITY_QOS;
