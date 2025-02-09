@@ -103,7 +103,7 @@ bool HelloWorldDriver::init(unsigned message_size, unsigned rate, unsigned count
 	driver_qos.reliability().kind = RELIABLE_RELIABILITY_QOS;
 	driver_qos.reliability().max_blocking_time = eprosima::fastrtps::Duration_t(2,0); // 2 sec
 	driver_qos.reliable_writer_qos().times.heartbeatPeriod.seconds = 0;
-	driver_qos.reliable_writer_qos().times.heartbeatPeriod.nanosec = 500000; // 500,000ns => 20000 Hz
+	driver_qos.reliable_writer_qos().times.heartbeatPeriod.nanosec = 500000; // 500,000ns => 2000 Hz
 	driver_qos.history().kind = KEEP_ALL_HISTORY_QOS;
 	driver_qos.durability().kind = TRANSIENT_LOCAL_DURABILITY_QOS;
 	writer_ = publisher_->create_datawriter(topic_, driver_qos, &listener_);
