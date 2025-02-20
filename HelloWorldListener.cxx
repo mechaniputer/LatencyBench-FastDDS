@@ -35,6 +35,9 @@
 #include <thread>
 #include <chrono>
 
+// For std::accumulate
+#include <numeric>
+
 using namespace eprosima::fastdds::dds;
 // For IPLocator
 using namespace eprosima::fastrtps::rtps;
@@ -163,9 +166,11 @@ void HelloWorldListener::run() {
 		}
 	}
 
-	uint64_t total_latency = 0;
 	unsigned long long rx_count = 0;
 	auto time_begin = std::chrono::high_resolution_clock::now();
+
+	std::vector<uint64_t> all_latencies;
+
 	// Main loop
 	while(rx_count < num_samples){
 //		std::cout << "Waiting\n";
@@ -184,10 +189,11 @@ void HelloWorldListener::run() {
 					int64_t nanoseconds_from_sample;
 					std::memcpy(&nanoseconds_from_sample, &st.message()[0], sizeof(int64_t));
 					auto time_tx = std::chrono::time_point<std::chrono::high_resolution_clock>(std::chrono::nanoseconds(nanoseconds_from_sample));
-					//std::cout << "Timestamp from sample: " << nanoseconds_from_sample << std::endl;
-					//std::cout << "Timestamp received: " << time_rx_ns << std::endl;
-					//std::cout << "Latency: " << time_rx_ns - nanoseconds_from_sample << " ns\n";
-					total_latency += time_rx_ns - nanoseconds_from_sample;
+				//	std::cout << "Timestamp from sample: " << nanoseconds_from_sample << std::endl;
+				//	std::cout << "Timestamp received: " << time_rx_ns << std::endl;
+				//	std::cout << "Latency: " << lat << " ns\n";
+					auto lat = time_rx_ns - nanoseconds_from_sample;
+					all_latencies.push_back(lat);
 				}
 			}
 		}else{
@@ -196,12 +202,19 @@ void HelloWorldListener::run() {
 		}
 	}
 
+	// Sort the vector
+	std::sort(all_latencies.begin(), all_latencies.end());
+	// Average the fastest 90% of samples
+	size_t count = static_cast<size_t>(0.9 * all_latencies.size());
+	uint64_t sum = std::accumulate(all_latencies.begin(), all_latencies.begin()+count, uint64_t(0));
+	uint64_t avg_latency = sum/count;
+
 	auto time_end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> running_time = time_end-time_begin;
-	std::cout << "Finished receiving " << num_samples << " samples in " << running_time.count() << " seconds.\n";
-	unsigned long long data_rate = num_samples / running_time.count();
+	std::cout << "Finished receiving " << all_latencies.size() << " samples in " << running_time.count() << " seconds.\n";
+	std::cout << "Counted " << count << " samples for average latency\n";
+	unsigned long long data_rate = all_latencies.size() / running_time.count();
 	std::cout << "Data rate was " << data_rate << " samples/sec.\n";
-	unsigned long long avg_latency = total_latency / num_samples;
 	std::cout << "Average latency per sample was " << avg_latency << " ns\n";
 	double avg_latency_sec = (double)avg_latency / 1000000000;
 	std::cout << "That is " << avg_latency_sec << " seconds\n";
