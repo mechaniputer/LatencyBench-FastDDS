@@ -150,6 +150,9 @@ void HelloWorldListener::run() {
 	SampleInfo info;
 	unsigned long long num_samples = 0;
 
+	std::vector<uint64_t> all_latencies;
+	all_latencies.reserve(1200000);
+
 	while(true){
 		std::cout << "Waiting for initial sample. " << std::endl;
 		if(response_reader_->wait_for_unread_message(10)) {
@@ -168,8 +171,6 @@ void HelloWorldListener::run() {
 
 	unsigned long long rx_count = 0;
 	auto time_begin = std::chrono::high_resolution_clock::now();
-
-	std::vector<uint64_t> all_latencies;
 
 	// Main loop
 	while(rx_count < num_samples){
@@ -202,6 +203,9 @@ void HelloWorldListener::run() {
 		}
 	}
 
+	auto time_end = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double> running_time = time_end-time_begin;
+
 	// Sort the vector
 	std::sort(all_latencies.begin(), all_latencies.end());
 	// Average the fastest 90% of samples
@@ -209,8 +213,6 @@ void HelloWorldListener::run() {
 	uint64_t sum = std::accumulate(all_latencies.begin(), all_latencies.begin()+count, uint64_t(0));
 	uint64_t avg_latency = sum/count;
 
-	auto time_end = std::chrono::high_resolution_clock::now();
-	std::chrono::duration<double> running_time = time_end-time_begin;
 	std::cout << "Finished receiving " << all_latencies.size() << " samples in " << running_time.count() << " seconds.\n";
 	std::cout << "Counted " << count << " samples for average latency\n";
 	unsigned long long data_rate = all_latencies.size() / running_time.count();
